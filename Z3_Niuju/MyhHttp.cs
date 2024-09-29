@@ -42,12 +42,9 @@ namespace Z3_Niuju
             { "DetailTable",dt  }  //工艺参数
     };
 
-
-
-
-
             return data;
         }
+
 
 
         public static KeyValuePair create_DataTable(string key, string value)

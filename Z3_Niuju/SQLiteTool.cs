@@ -11,6 +11,7 @@ using System.Data;
 using System.Windows.Forms;
 using NLog;
 using System.Runtime.InteropServices.ComTypes;
+//using Microsoft.Office.Interop.Excel;
 //using SQLitePCL;
 
 
@@ -50,7 +51,8 @@ namespace Z3_Niuju
                         CREATE TABLE IF NOT EXISTS NIJUDATA (
                             Id INTEGER PRIMARY KEY AUTOINCREMENT,
                             BARCODE TEXT NOT NULL,
-                            NIUJU REAL NOT NULL,
+                            NIUJU1 REAL NOT NULL,
+                            NIUJU2 REAL NOT NULL,
                             CREATEE TEXT NOT NULL
                         );";
 
@@ -65,7 +67,7 @@ namespace Z3_Niuju
             catch (Exception e) { Program.Logger.Error(e.Message); }
         }
 
-        public void insert(string bar, string niu, string create)
+        public void insert(string bar, string niu1,string niu2 , string create)
         {
             Console.WriteLine("开始保存！");
             try
@@ -75,14 +77,15 @@ namespace Z3_Niuju
                     connection.Open(); // 打开数据库连接
 
                     // 插入数据的 SQL 语句
-                    string insertQuery = "INSERT INTO NIJUDATA (BARCODE, NIUJU, CREATEE) VALUES (@barcode, @niu, @date);";
+                    string insertQuery = "INSERT INTO NIJUDATA (BARCODE, NIUJU1,NIUJU2, CREATEE) VALUES (@barcode, @niu1, @niu2, @date);";
 
                     // 创建 SQL 命令
                     using (var command = new SQLiteCommand(insertQuery, connection))
                     {
                         // 添加参数并赋值
                         command.Parameters.AddWithValue("@barcode", bar);
-                        command.Parameters.AddWithValue("@niu", niu);
+                        command.Parameters.AddWithValue("@niu1", niu1);
+                        command.Parameters.AddWithValue("@niu2", niu2);
                         command.Parameters.AddWithValue("@date", create);
 
                         // 执行插入操作
@@ -147,7 +150,7 @@ namespace Z3_Niuju
             {
                 using (var connection = new SQLiteConnection(connectionString))
                 {
-                    string selectQuery = "SELECT Id , BARCODE AS 二维码,NIUJU AS 扭矩值,CREATEE AS 测试时间 FROM NIJUDATA WHERE CREATEE >= @startDate AND CREATEE <= @endDate;";
+                    string selectQuery = "SELECT Id , BARCODE AS 二维码,NIUJU1 AS 扭矩值1,NIUJU2 AS 扭矩值2,CREATEE AS 测试时间 FROM NIJUDATA WHERE CREATEE >= @startDate AND CREATEE <= @endDate;";
                     connection.Open();
 
                     using (var command = new SQLiteCommand(selectQuery, connection))
@@ -171,8 +174,84 @@ namespace Z3_Niuju
             return dataTable;
         }
 
+        public static string getAccountById(string  id) {
+            string result = null;
+            string path = "SqliteDb\\" + "Account.db";
+            string myConnectionString = $"Data Source={path};Version=3;";
+
+            try
+            {
+                using (var connection = new SQLiteConnection(myConnectionString))
+                {
+                    string selectQuery = "SELECT PassWord FROM User WHERE ID = @ID";
+                    connection.Open();
+
+                    using (var command = new SQLiteCommand(selectQuery, connection))
+                    {
+                        // 添加查询参数
+                        command.Parameters.AddWithValue("@ID", id);
+                        //
+
+                        object value = command.ExecuteScalar();
+                        if (value != null)
+                        {
+                            result = value.ToString();
+                        }
+
+
+                    }
+                }
+            }
+            catch (Exception e) {
+                Program.Logger.Error(e.Message);
+            
+            }
+            return result;
+        }
+
+    public static string getUserNameById(string id)
+    {
+        string result = null;
+        string path = "SqliteDb\\" + "Account.db";
+        string myConnectionString = $"Data Source={path};Version=3;";
+
+        try
+        {
+            using (var connection = new SQLiteConnection(myConnectionString))
+            {
+                string selectQuery = "SELECT UserName FROM User WHERE ID = @ID";
+                connection.Open();
+
+                using (var command = new SQLiteCommand(selectQuery, connection))
+                {
+                    // 添加查询参数
+                    command.Parameters.AddWithValue("@ID", id);
+                    //
+
+                    object value = command.ExecuteScalar();
+                    if (value != null)
+                    {
+                        result = value.ToString();
+                    }
+
+
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Program.Logger.Error(e.Message);
+
+        }
+        return result;
+    }
+
+
+
+
+    }
+
 
 
     //CLASS
-    }
- }
+}

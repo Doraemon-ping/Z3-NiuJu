@@ -16,12 +16,15 @@ using Newtonsoft.Json;
 using static System.Net.Mime.MediaTypeNames;
 using NLog;
 using System.Diagnostics;
+using Aqua.EnumerableExtensions;
 
 
 namespace Z3_Niuju
 {
     public partial class Form1 : Form
-    {
+    {/// <summary>
+    /// 
+    /// </summary>
         public SQLiteTool sQLiteTool;
 
         bool ScanPort = false;//扫码枪串口连接状态
@@ -30,6 +33,13 @@ namespace Z3_Niuju
         bool ScanRead = false;//扫码枪串口读取
         bool NiuJuREad = false;//扭矩枪读取
         int post = 0;//报工状态
+
+        bool n1 = false;//扭矩1
+        bool n2 = false;//扭矩2
+
+        bool NjExot = false;//扭矩完成
+        int NjIndex = 1;//扭矩次数
+        
         private PortConfig Scan_Port = new PortConfig();//扭矩枪串口
         private List<string> ScanPortList;
         SerialPort serialPort;
@@ -39,6 +49,11 @@ namespace Z3_Niuju
         Thread jiankong;//监控串口读取是否正常
         Thread port;//监控串口是否打开
         Thread JkNes;//此线程用于监听mes
+        Thread fresh;//刷新ui
+
+
+
+        bool _isHandlingTextChanged = false;
 
         bool readPortIsAlive = false;
         List<byte> buf = new List<byte>();//当数据不完整时用于存储
@@ -82,28 +97,20 @@ namespace Z3_Niuju
             jiankong = new Thread(MonitorThread);
             port = new Thread(portIsAlive);
             JkNes = new Thread(IsMes);
+            fresh = new Thread(chushihua);
             readThread.Start();
             jiankong.Start();
             port.Start();
             JkNes.Start();
+            fresh.Start();
 
             readPortIsAlive = readThread.IsAlive;
 
-
-            if (readPortIsAlive)
-            {
-                button3.BackColor = Color.Green;
-            }
-            else
-            {
-                button3.BackColor = Color.Red;
-            }
-
-            chushihua();
+            //chushihua();
             richTextBox7.Text = count.ToString();
 
             sQLiteTool = new SQLiteTool();
-           // sQLiteTool.load();
+            sQLiteTool.load();
            // sQLiteTool.insert("11","12","2024-08-24 01:12;12");
         }
 
@@ -123,13 +130,13 @@ namespace Z3_Niuju
                         Console.WriteLine("串口已关闭，尝试重新打开...");
                         // 尝试重新打开串口或进行其他处
                         NiuJuPort = false;
-                        chushihua();
+                       // chushihua();
                         serialPort.Open();
                     }
                     else
                     {
                         NiuJuPort = true;
-                        chushihua();
+                       // chushihua();
                     }
 
                     // 添加必要的监控逻辑，例如读取数据或其他操作
@@ -139,7 +146,7 @@ namespace Z3_Niuju
                     // 记录异常，防止线程因未处理的异常而终止
                     Console.WriteLine($"串口打开监控线程异常: {ex.Message}");
                     NiuJuPort = false;
-                    chushihua();
+                   // chushihua();
 
                     // 可以选择休眠一段时间以避免频繁重试，减轻系统压力
                     Thread.Sleep(1000);
@@ -158,31 +165,23 @@ namespace Z3_Niuju
                 if (readThread == null || !readThread.IsAlive)
                 {
                     readPortIsAlive = false;
-                    if (readPortIsAlive)
-                    {
-                        button3.BackColor = Color.Green;
-                    }
-                    else
-                    {
-                        button3.BackColor = Color.Red;
-                    }
                     Console.WriteLine("Worker thread is being restarted.");
                     readThread = new Thread(ReadSerialPort);
                     readThread.Start();
                     readPortIsAlive = readThread.IsAlive;
-                    if (readPortIsAlive)
-                    {
-                        button3.BackColor = Color.Green;
-                    }
-                    else
-                    {
-                        button3.BackColor = Color.Red;
-                    }
+                    //if (readPortIsAlive)
+                    //{
+                    //    button3.BackColor = Color.Green;
+                    //}
+                    //else
+                    //{
+                    //    button3.BackColor = Color.Red;
+                    //}
 
                 }
 
                 // 每隔一段时间检查一次线程状态
-                Thread.Sleep(5000);
+                Thread.Sleep(1000);
             }
         }
 
@@ -196,7 +195,7 @@ namespace Z3_Niuju
             {
 
                 MES = MyhHttp.isConnettionToIp("10.25.206.7");
-                chushihua();
+                //chushihua();
 
                 // 可以选择休眠一段时间以避免频繁重试，减轻系统压力
                 Thread.Sleep(5000);
@@ -206,61 +205,102 @@ namespace Z3_Niuju
         //刷新ui控件
         public void chushihua()
         {
-            if (ScanPort) { textBox2.BackColor = Color.Green; }
-            else { textBox2.BackColor = Color.Red; }
+            while (true) {
+                if (ScanPort) { textBox2.BackColor = Color.LawnGreen; }
+                else { textBox2.BackColor = Color.Red; }
 
-            if (NiuJuPort) { textBox1.BackColor = Color.Green; }
-            else { textBox1.BackColor = Color.Red; }
+                if (NiuJuPort) { textBox1.BackColor = Color.LawnGreen; }
+                else { textBox1.BackColor = Color.Red; }
 
-            if (MES) { textBox3.BackColor = Color.Green; }
-            else { textBox3.BackColor = Color.Red; }
+                if (MES) { textBox3.BackColor = Color.LawnGreen; }
+                else { textBox3.BackColor = Color.Red; }
 
-            if (ScanRead)
-            {
-                richTextBox5.BackColor = Color.Green;
-                button1.BackColor = Color.Green;
-                richTextBox5.Text = "扫码完成！";
-            }
-            else
-            {
-                richTextBox5.BackColor = Color.Red;
-                button1.BackColor = Color.Red;
-                richTextBox5.Text = "等待扫码！";
-            }
+                if (ScanRead)
+                {
+                    richTextBox5.BackColor = Color.LawnGreen;
+                    button1.BackColor = Color.LawnGreen;
+                    richTextBox5.Text = "扫码完成！";
+                }
+                else
+                {
+                    richTextBox5.BackColor = Color.Red;
+                    button1.BackColor = Color.Red;
+                    richTextBox5.Text = "等待扫码！";
+                }
 
-            if (NiuJuREad)
-            {
-                richTextBox4.BackColor = Color.Green;
-                button2.BackColor = Color.Green;
-                richTextBox4.Text = "扭矩已经读取！";
-            }
-            else
-            {
-                richTextBox4.BackColor = Color.Red;
-                button2.BackColor = Color.Red;
-                richTextBox4.Text = "请测试扭矩！";
-            }
+                if (NiuJuREad)
+                {
+                    //richTextBox4.BackColor = Color.LawnGreen;
+                    button2.BackColor = Color.LawnGreen;
+                   // richTextBox4.Text = "扭矩已经读取！";
+                }
+                else
+                {
+                    // richTextBox4.BackColor = Color.Red;
+                    button2.BackColor = Color.Red;
+                    //richTextBox4.Text = "请测试扭矩！";
+                }
 
-            if (post == 0)
-            {
-                //不满足报工
-                richTextBox6.Text = "报工条件不满足";
-                richTextBox6.BackColor = Color.Yellow;
-            }
-            else if (post == 1)
-            {
-                richTextBox6.Text = "正在报工";
-                richTextBox6.BackColor = Color.YellowGreen;
-            }
-            else if (post == 2)
-            {
-                richTextBox6.Text = "报工完成";
-                richTextBox6.BackColor = Color.Green;
-            }
-            else if (post == 3)
-            {
-                richTextBox6.Text = "报工失败";
-                richTextBox6.BackColor = Color.Red;
+                if (n1)
+                {
+                    this.richTextBox4.BackColor = Color.LawnGreen;
+                }
+                else
+                {
+                    this.richTextBox4.BackColor = Color.Red;
+                }
+                if (n2)
+                {
+                    this.richTextBox8.BackColor = Color.LawnGreen;
+                }
+                else
+                {
+                    this.richTextBox8.BackColor = Color.Red;
+                }
+
+                if (post == 0)
+                {
+                    string s1=null;
+                    string s2 = null;
+                    string s3 = null;
+                    string s4 = null;
+
+                    //不满足报工
+                    if (!ScanRead) {  s1 = "二维码未扫！"; }
+                    if (!n1) {  s2 = "扭矩1未测试！"; }
+                    if (!n2) { s3 = "扭矩2未测试！"; }
+                    if (!MES) {  s4 = "MES未连接！"; }
+
+                    richTextBox6.Text = "报工条件不满足：" + "\r\n"+s1+s2+s3+s4; ;
+                    richTextBox6.BackColor = Color.Yellow;
+                }
+                
+                else if (post == 1)
+                {
+                    richTextBox6.Text = "正在报工";
+                    richTextBox6.BackColor = Color.YellowGreen;
+                }
+                else if (post == 2)
+                {
+                    richTextBox6.Text = "报工完成";
+                    richTextBox6.BackColor = Color.LawnGreen;
+                }
+                else if (post == 3)
+                {
+                    richTextBox6.Text = "报工失败";
+                    richTextBox6.BackColor = Color.Red;
+                }
+
+                if (readPortIsAlive)
+                {
+                    button3.BackColor = Color.LawnGreen;
+                    button3.Text = "扭矩枪读取服务开启";
+                }
+                else
+                {
+                    button3.BackColor = Color.Red;
+                    button3.Text = "扭矩枪读取服务关闭";
+                }
             }
 
         }
@@ -301,6 +341,8 @@ namespace Z3_Niuju
                 {
                     if (serialPort.BytesToRead > 0)
                     {
+                        //等待全部接收
+                        Thread.Sleep(30);
                         // 读取数据到缓冲区
                         int bytesRead = serialPort.Read(buffer, 0, buffer.Length);
 
@@ -330,37 +372,57 @@ namespace Z3_Niuju
                             ScanRead = false;
                         }
                         else { ScanRead = true; }
-                        chushihua();
+                        //chushihua();
 
-                        if ( ScanRead)
+                        if (ScanRead && NjIndex == 1)//第一个
                         {
 
                             data = Parse(buffer);
 
                             decimal niuju = ConstructDecimal(data[0], data[1]);
                             richTextBox2.Text = niuju.ToString();
-                            NiuJuREad = true;
+                            richTextBox4.Text = niuju.ToString();
+                            NiuJuREad = richTextBox2.Text.IsNotNullOrEmpty();
+                            n1 = richTextBox4.Text.IsNotNullOrEmpty();
 
-                            sQLiteTool.insert(richTextBox1.Text,richTextBox2.Text,DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                          //  DateTime d = new DateTime;
-                            chushihua();
+                            NjIndex++;
+
+                            //  sQLiteTool.insert(richTextBox1.Text,richTextBox.Text,DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                            //  DateTime d = new DateTime;
+                            //chushihua();
                         }
-                        else if ( !ScanRead)
+                        else if (ScanRead && NjIndex == 2) { //第二个
+                            data = Parse(buffer);
+
+                            decimal niuju = ConstructDecimal(data[0], data[1]);
+                            richTextBox2.Text = niuju.ToString();
+                            richTextBox8.Text = niuju.ToString();
+                            NiuJuREad = richTextBox2.Text.IsNotNullOrEmpty();
+                            n2 = richTextBox4.Text.IsNotNullOrEmpty();
+
+                            NjIndex = 1;
+
+                        }
+                        else if (!ScanRead)
                         {
                             MessageBox.Show("请先扫二维码！");
                         }
 
                         if (!MES) {
 
-                            MessageBox.Show("MES链接失败，请检查网络链接状态！");
+                            Console.WriteLine("MES链接失败，请检查网络链接状态！");
                         }
 
                         bool postisTrue = false;
 
+                        NjExot = (n1 && n2);//扭矩1和扭矩二都测完认为完成
+
+                        
+
                         if (post == 1) { MessageBox.Show("请等待上一个产品报工完成！"); }
                         else { postisTrue = true; }
 
-                        if (ScanRead && NiuJuREad&& MES && postisTrue )
+                        if (ScanRead && NiuJuREad&& MES && postisTrue && NjExot )
                         {
                             post = 1;
 
@@ -372,7 +434,7 @@ namespace Z3_Niuju
                     }
 
                     // 可以根据需要添加延时，防止CPU过度使用
-                    Thread.Sleep(100);
+                   
                 }
             }
             catch (Exception ex)
@@ -399,11 +461,11 @@ namespace Z3_Niuju
             // Open the serial port
             serialPort.Open();
 
-            if (serialPort.IsOpen)
-            {
-                NiuJuPort = true;
-            }
-            else { }
+            //if (serialPort.IsOpen)
+            //{
+            //    NiuJuPort = true;
+            //}
+            //else { }
 
 
         }
@@ -411,24 +473,31 @@ namespace Z3_Niuju
         public async void upMes()
         {
             post = 1;
-            chushihua();
-            string key = "扭矩值";
-            string v = richTextBox2.Text;
-            string barfromtext = richTextBox1.Text;
+            //chushihua();
+            string key1 = "扭矩1";
+            string value1 = richTextBox4.Text;
+
+            string key2 = "扭矩2";
+            string value2 = richTextBox8.Text;
+
+            string barfromtext = richTextBox1.Text; //二维码
+
 
             string barcode = barfromtext.TrimEnd();
             //string barcode = richTextBox1.Text;
             string newbaercode = barcode;
 
-            textBox4.Text = barcode;
-            textBox5.Text = v;
+            sQLiteTool.insert(barcode,value1,value2,DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
 
             List<KeyValuePair> li = new List<KeyValuePair>();
-            li.Add(MyhHttp.create_DataTable(key, v));
-            Dictionary<string, object> dt = MyhHttp.create_json_test(barcode, newbaercode, "JY811101", "8111Niuju0001", "8111GWJN", false, li);
+            li.Add(MyhHttp.create_DataTable(key1, value1));
+            li.Add(MyhHttp.create_DataTable(key2, value2));
+
+            Dictionary<string, object> dt = MyhHttp.create_json_test(barcode, newbaercode, "JY811101", "8111F2N0002", "8111GWJN", false, li);
             string json = JsonConvert.SerializeObject(dt);
             Program.Logger.Info("准备报工：" + json);
-            // richTextBox6.Text = json;
+        
             string ip = ipAddress;
             string api = Api_AddEquipInfo;
             string url = "http://" + ip + api;
@@ -436,10 +505,20 @@ namespace Z3_Niuju
 
             richTextBox1.Text = string.Empty;
             richTextBox2.Text = string.Empty;
+            richTextBox4.Text = string.Empty;
+            richTextBox8.Text = string.Empty;
+
             if (string.IsNullOrEmpty(richTextBox1.Text)) { ScanRead = false; } else { ScanRead = true; }
             if (string.IsNullOrEmpty(richTextBox2.Text)) { NiuJuREad = false; } else { NiuJuREad = true; }
+            if (string.IsNullOrEmpty(richTextBox4.Text)) { n1 = false; } else { n1 = true; }
+            if (string.IsNullOrEmpty(richTextBox8.Text)) { n2 = false; } else { n2 = true; }
 
-            NiuJuREad = false;
+            textBox4.Text = barcode;
+            textBox5.Text = value1;
+            textBox7.Text = value2;
+
+
+            // NiuJuREad = false;
             try
             {
                 var response = await MyhHttp.myPost(url, json);
@@ -459,7 +538,7 @@ namespace Z3_Niuju
                     //chushihua();
                     Program.Logger.Info("保存成功！" + response);
                 }
-                chushihua();
+                //chushihua();
                 count++;
                 richTextBox7.Text = count.ToString();
             }
@@ -467,7 +546,7 @@ namespace Z3_Niuju
             {
                 richTextBox2.Text = ($"An error occurred: {ex.Message}");
                 post = 3;
-                chushihua();
+                //chushihua();
             }
         }
 
@@ -524,16 +603,25 @@ namespace Z3_Niuju
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            serialPort.Close();
-            Environment.Exit(0);
-
+            try
+            {
+                serialPort.Close();
+                Environment.Exit(0);
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
         private void 打开日志ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string folderPath = Program.logPath;
+            try
+            {
+                string folderPath = Program.logPath;
 
-            FileTool.OpenFolder(folderPath);
+                FileTool.OpenFolder(folderPath);
+            }
+            catch (Exception err) {
+                MessageBox.Show(err.Message);
+            }
             
         }
 
@@ -541,6 +629,91 @@ namespace Z3_Niuju
         {
             Form2 form2  = new Form2();
             form2.Show();
+        }
+
+        private void textBox6_TextChanged(object sender, EventArgs e)
+        {
+            // 检查是否已经在处理 TextChanged 事件
+            if (_isHandlingTextChanged)
+                return;
+
+            try
+            {
+                Console.WriteLine("事件触发！");
+                // 设置标志位，表示正在处理事件
+                _isHandlingTextChanged = true;
+
+                // 在这里执行你的逻辑，例如修改 TextBox 的内容
+                // 注意：此时更改 TextBox.Text 不会再次触发 TextChanged 事件
+                //
+                if (textBox6.Text == "\n" || textBox6.Text == "\r\n" || textBox6.Text == "\r") { textBox6.Text = string.Empty;
+                //只按下空格，将输入清空
+                //
+                }
+            
+                //修改值
+                bool isinput = textBox6.Text.IsNotNullOrEmpty();//不为空，用户输入
+                                                                //;//用户是否完成输入
+                isinput = isinput && !(textBox6.Text == "\n" || textBox6.Text == "\r\n" || textBox6.Text == "\r");
+
+                bool inputExit = false;//默认未完成
+
+                bool endN = false; //以回车结尾
+                bool includeN = false; //包含回车
+
+                if (textBox6.Text.EndsWith("\r\n") || textBox6.Text.EndsWith("\n") || textBox6.Text.EndsWith("\r"))
+                {
+                    Console.WriteLine("字符串以换行符结尾");
+                    endN = true;//用户完成输入 //换行了，输入完成
+                }
+
+                if (textBox6.Text.Contains("\r\n") || textBox6.Text.Contains("\n") || textBox6.Text.Contains("\r"))
+                {
+                    includeN = true;
+                    Console.WriteLine("字符串中存在换行符");
+                }
+                inputExit = (endN || includeN);
+
+                if (isinput && inputExit )
+                {
+                    richTextBox1.Text = textBox6.Text.Replace("\r\n", "").Replace("\n", "").Replace("\r", ""); //删除换行
+
+                    richTextBox1.Text = richTextBox1.Text.ToUpper(); // 示例：将文本转换为大写
+                    richTextBox1.SelectionStart = richTextBox1.Text.Length; // 保持光标位置
+                    ScanRead = richTextBox1.Text.IsNotNullOrEmpty();
+                    textBox6.Text = string.Empty;
+                }
+
+               ///
+            }
+            finally
+            {
+                // 重置标志位，允许再次处理事件
+                _isHandlingTextChanged = false;
+            }
+
+           
+        }
+
+        private void 配置扭矩枪串口ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string folderPath = "port2.xml";
+                FileTool.OpenFolder(folderPath);
+            }
+            catch (Exception err) { MessageBox.Show(err.Message); }
+            
+        }
+
+        private void 配置读码器串口ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string folderPath = "port1.xml";
+                FileTool.OpenFolder(folderPath);
+            }
+            catch (Exception err) { MessageBox.Show(err.Message); }
         }
     }
 }
