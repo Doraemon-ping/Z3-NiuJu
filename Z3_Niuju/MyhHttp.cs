@@ -77,6 +77,27 @@ namespace Z3_Niuju
 
         }
 
+        public static async Task<string> myGet(string url, string jsonData)
+        {
+            using (var client = new HttpClient())
+            {
+                var content = new StringContent(jsonData, Encoding.UTF8);
+
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Request failed with status code: {response.StatusCode}");
+                }
+
+                return await response.Content.ReadAsStringAsync();
+            }
+
+            //return response;
+
+
+        }
+
         public static bool isConnettionToIp(string ip) {
             try
             {

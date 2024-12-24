@@ -36,6 +36,8 @@ namespace Z3_Niuju
 
         bool n1 = false;//扭矩1
         bool n2 = false;//扭矩2
+        bool n3 = false;//扭矩3
+        bool cheek = false;//校验结果
 
         bool NjExot = false;//扭矩完成
         int NjIndex = 1;//扭矩次数
@@ -65,6 +67,10 @@ namespace Z3_Niuju
         string portportRate;
         string dataw;
 
+
+        string Z2_Ip;
+        string Z2_DoSub;
+
         public Form1()
         {
             Control.CheckForIllegalCrossThreadCalls = false;
@@ -80,10 +86,15 @@ namespace Z3_Niuju
             this.WindowState = FormWindowState.Normal;
             this.Size = new Size(800, 600); // 设置为合适的默认大小
 
+           
+
             try//可能引发异常
             {
                 ipAddress = System.Configuration.ConfigurationManager.ConnectionStrings["IPAddress"].ConnectionString;
                 Api_AddEquipInfo = System.Configuration.ConfigurationManager.ConnectionStrings["Api_AddEquipInfo"].ConnectionString;
+                Z2_Ip = System.Configuration.ConfigurationManager.ConnectionStrings["IpZ2"].ConnectionString;
+                Z2_DoSub = System.Configuration.ConfigurationManager.ConnectionStrings["Z2_DoSub"].ConnectionString;
+
                 InitializeComponent();
                 InitializeSerialPort(portName, int.Parse(portportRate), int.Parse(dataw), StopBits.One, Parity.None);
             }
@@ -92,7 +103,7 @@ namespace Z3_Niuju
                 Program.Logger.Error("发生异常: " + ex.Message);
             }
 
-            MES = MyhHttp.isConnettionToIp("10.25.206.7");
+            MES = MyhHttp.isConnettionToIp("Z2_Ip");
             readThread = new Thread(ReadSerialPort);
             jiankong = new Thread(MonitorThread);
             port = new Thread(portIsAlive);
@@ -257,6 +268,14 @@ namespace Z3_Niuju
                 {
                     this.richTextBox8.BackColor = Color.Red;
                 }
+                if (n3)
+                {
+                    this.richTextBox9.BackColor = Color.LawnGreen;
+                }
+                else
+                {
+                    this.richTextBox9.BackColor = Color.Red;
+                }
 
                 if (post == 0)
                 {
@@ -264,14 +283,21 @@ namespace Z3_Niuju
                     string s2 = null;
                     string s3 = null;
                     string s4 = null;
+                    string s5 = null;
+                    string s6 = null;
+
+
 
                     //不满足报工
                     if (!ScanRead) {  s1 = "二维码未扫！"; }
                     if (!n1) {  s2 = "扭矩1未测试！"; }
                     if (!n2) { s3 = "扭矩2未测试！"; }
                     if (!MES) {  s4 = "MES未连接！"; }
+                    if (!n3) { s5 = "扭矩3未测！"; }
+                    if (!cheek) { s6 = "工序校验不通过！"; }
 
-                    richTextBox6.Text = "报工条件不满足：" + "\r\n"+s1+s2+s3+s4; ;
+
+                    richTextBox6.Text = "报工条件不满足：" + "\r\n"+s1+s2+s3+s5+s4+s6; ;
                     richTextBox6.BackColor = Color.Yellow;
                 }
                 
@@ -398,10 +424,23 @@ namespace Z3_Niuju
                             richTextBox2.Text = niuju.ToString();
                             richTextBox8.Text = niuju.ToString();
                             NiuJuREad = richTextBox2.Text.IsNotNullOrEmpty();
-                            n2 = richTextBox4.Text.IsNotNullOrEmpty();
+                            n2 = richTextBox8.Text.IsNotNullOrEmpty();
+                            NjIndex++;
+
+                            //NjIndex = 1;
+
+                        }
+                        else if (ScanRead && NjIndex == 3)
+                        {
+                            data = Parse(buffer);
+
+                            decimal niuju = ConstructDecimal(data[0], data[1]);
+                            richTextBox2.Text = niuju.ToString();
+                            richTextBox9.Text = niuju.ToString();
+                            NiuJuREad = richTextBox2.Text.IsNotNullOrEmpty();
+                            n3 = richTextBox9.Text.IsNotNullOrEmpty();
 
                             NjIndex = 1;
-
                         }
                         else if (!ScanRead)
                         {
@@ -415,7 +454,7 @@ namespace Z3_Niuju
 
                         bool postisTrue = false;
 
-                        NjExot = (n1 && n2);//扭矩1和扭矩二都测完认为完成
+                        NjExot = (n1 && n2 && n3);//扭矩1和扭矩二都测完认为完成
 
                         
 
@@ -474,11 +513,14 @@ namespace Z3_Niuju
         {
             post = 1;
             //chushihua();
-            string key1 = "扭矩1";
+          //  string key1 = "扭矩1";
             string value1 = richTextBox4.Text;
 
-            string key2 = "扭矩2";
+           // string key2 = "扭矩2";
             string value2 = richTextBox8.Text;
+
+          //  string key3 = "扭矩3";
+            string value3 = richTextBox9.Text;
 
             string barfromtext = richTextBox1.Text; //二维码
 
@@ -487,35 +529,44 @@ namespace Z3_Niuju
             //string barcode = richTextBox1.Text;
             string newbaercode = barcode;
 
-            sQLiteTool.insert(barcode,value1,value2,DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            sQLiteTool.insert(barcode,value1,value2,value3,DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
 
-            List<KeyValuePair> li = new List<KeyValuePair>();
-            li.Add(MyhHttp.create_DataTable(key1, value1));
-            li.Add(MyhHttp.create_DataTable(key2, value2));
+            // List<KeyValuePair> li = new List<KeyValuePair>();
+            // li.Add(MyhHttp.create_DataTable(key1, value1));
+            // li.Add(MyhHttp.create_DataTable(key2, value2));
+            //   Dictionary<string, object> dt = MyhHttp.create_json_test(barcode, newbaercode, "JY811101", "8111F2N0002", "8111GWJN", false, li);
+            // string json = JsonConvert.SerializeObject(dt);
+            List<Dictionary<string, object>> dt = Z3_Niuju.Z2Http.createDataTable(value1, value2, value3);
+            Dictionary<string, object> data = Z3_Niuju.Z2Http.DoSub(barcode, dt);
+            string json = JsonConvert.SerializeObject(data);
+            richTextBox1.Text = json;
 
-            Dictionary<string, object> dt = MyhHttp.create_json_test(barcode, newbaercode, "JY811101", "8111F2N0002", "8111GWJN", false, li);
-            string json = JsonConvert.SerializeObject(dt);
+
             Program.Logger.Info("准备报工：" + json);
         
-            string ip = ipAddress;
-            string api = Api_AddEquipInfo;
-            string url = "http://" + ip + api;
+            string ip = Z2_Ip;
+            string api = Z2_DoSub;
+            string url = "http://" +  ip + api;
             richTextBox3.Text = json;
 
             richTextBox1.Text = string.Empty;
             richTextBox2.Text = string.Empty;
             richTextBox4.Text = string.Empty;
             richTextBox8.Text = string.Empty;
+            richTextBox9.Text = string.Empty;
 
             if (string.IsNullOrEmpty(richTextBox1.Text)) { ScanRead = false; } else { ScanRead = true; }
             if (string.IsNullOrEmpty(richTextBox2.Text)) { NiuJuREad = false; } else { NiuJuREad = true; }
             if (string.IsNullOrEmpty(richTextBox4.Text)) { n1 = false; } else { n1 = true; }
             if (string.IsNullOrEmpty(richTextBox8.Text)) { n2 = false; } else { n2 = true; }
+            if (string.IsNullOrEmpty(richTextBox9.Text)) { n3 = false; } else { n3 = true; }
+
 
             textBox4.Text = barcode;
             textBox5.Text = value1;
             textBox7.Text = value2;
+            textBox8.Text = value3; 
 
 
             // NiuJuREad = false;
@@ -541,11 +592,14 @@ namespace Z3_Niuju
                 //chushihua();
                 count++;
                 richTextBox7.Text = count.ToString();
+                cheek = false;
             }
             catch (Exception ex)
             {
                 richTextBox2.Text = ($"An error occurred: {ex.Message}");
                 post = 3;
+                cheek = false;
+
                 //chushihua();
             }
         }
@@ -631,7 +685,7 @@ namespace Z3_Niuju
             form2.Show();
         }
 
-        private void textBox6_TextChanged(object sender, EventArgs e)
+        private async void textBox6_TextChanged(object sender, EventArgs e)
         {
             // 检查是否已经在处理 TextChanged 事件
             if (_isHandlingTextChanged)
@@ -676,15 +730,30 @@ namespace Z3_Niuju
 
                 if (isinput && inputExit )
                 {
+                    cheek = false;
+
                     richTextBox1.Text = textBox6.Text.Replace("\r\n", "").Replace("\n", "").Replace("\r", ""); //删除换行
 
                     richTextBox1.Text = richTextBox1.Text.ToUpper(); // 示例：将文本转换为大写
                     richTextBox1.SelectionStart = richTextBox1.Text.Length; // 保持光标位置
                     ScanRead = richTextBox1.Text.IsNotNullOrEmpty();
                     textBox6.Text = string.Empty;
+                    try
+                    {
+                        var response = await Z2Http.CheckProductRouteAsync(richTextBox1.Text, "129762", "1");
+                        Z2res serverresponse = JsonConvert.DeserializeObject<Z2res>(response);
+                        Program.Logger.Info("开始校验" + "二维码:" + richTextBox1.Text + "状态：" +serverresponse.Ret);
+                        if (serverresponse.Ret == 1) { cheek = true; }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.Info(ex.Message);
+                    }
+                  
+
                 }
 
-               ///
+                ///
             }
             finally
             {
@@ -714,6 +783,17 @@ namespace Z3_Niuju
                 FileTool.OpenFolder(folderPath);
             }
             catch (Exception err) { MessageBox.Show(err.Message); }
+        }
+
+        private void testToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form4 form4 = new Form4();
+            form4.Show();
+        }
+
+        private void richTextBox9_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
