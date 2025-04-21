@@ -740,7 +740,7 @@ namespace Z3_Niuju
                     textBox6.Text = string.Empty;
                     try
                     {
-                        var response = await Z2Http.CheckProductRouteAsync(richTextBox1.Text, "129762", "1");
+                        var response = await Z2Http.CheckProductRouteAsync(richTextBox1.Text, "129246", "3");
                         Z2res serverresponse = JsonConvert.DeserializeObject<Z2res>(response);
                         Program.Logger.Info("开始校验" + "二维码:" + richTextBox1.Text + "状态：" +serverresponse.Ret);
                         if (serverresponse.Ret == 1) { cheek = true; }

@@ -83,7 +83,7 @@
     <OutputPath>bin\x64\Release\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>20240825012217_f1017e9622f843fb87a9bea9e6df879b.ico</ApplicationIcon>
+    <ApplicationIcon>视成科技（宁波）有限公司_画板 1 %281%29.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>A499DCEEF83CA6B283A2983047467B35AEBC5D40</ManifestCertificateThumbprint>
@@ -320,6 +320,7 @@
     <Content Include="20240825012217_f1017e9622f843fb87a9bea9e6df879b.ico" />
     <Content Include="bin\Debug\port1.xml" />
     <Content Include="bin\Debug\port2.xml" />
+    <Content Include="视成科技（宁波）有限公司_画板 1 %281%29.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Text.Json.6.0.4\build\System.Text.Json.targets" Condition="Exists('..\packages\System.Text.Json.6.0.4\build\System.Text.Json.targets')" />

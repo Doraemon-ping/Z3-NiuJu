@@ -34,10 +34,10 @@ namespace Z3_Niuju
        public static Dictionary<string, object> DoSub(string code,List<Dictionary<string , object>> dt) {
             Dictionary<string, object> data = new Dictionary<string, object>{
             { "RequestGuid","ee6506fa-f737-4e30-990b-8766ea9a3f69_20230920100419719" },
-            { "MachineId",129762 },
+            { "MachineId",129246 },
             { "ProductId",0 },
-            { "StandardRouteId",0 },
-            { "MachineType",99 },
+            { "StandardRouteId",827 },
+            { "MachineType",0 },
             { "ActionTypeId",1 },
             { "Key",code },
             { "Data",new Dictionary<string,object>{
