@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("Z3_Niuju")]
-[assembly: AssemblyDescription("扭矩枪采集")]
+[assembly: AssemblyTitle("悬架六部扭矩枪采集程序")]
+[assembly: AssemblyDescription("视成科技扭矩枪采集 V1.0")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("UDP(F)")]
-[assembly: AssemblyProduct("Z3_Niuju")]
-[assembly: AssemblyCopyright("Copyright ©  2024")]
+[assembly: AssemblyCompany("视成科技(R)")]
+[assembly: AssemblyProduct("技扭矩枪采集 V1.0")]
+[assembly: AssemblyCopyright("Copyright ©  2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

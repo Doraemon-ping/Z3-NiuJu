@@ -249,6 +249,44 @@ namespace Z3_Niuju
         return result;
     }
 
+        //用户登录账号密码
+        public  static string GtePasswordByUsername (string username)
+        {
+            string result = null;
+            string path = "SqliteDb\\" + "Z2NiuJu.db";
+            string myConnectionString = $"Data Source={path};Version=3;";
+
+            try
+            {
+                using (var connection = new SQLiteConnection(myConnectionString))
+                {
+                    string selectQuery = "SELECT PASSWORD FROM LOGIN WHERE USER = @UserName";
+                    connection.Open();
+
+                    using (var command = new SQLiteCommand(selectQuery, connection))
+                    {
+                        // 添加查询参数
+                        command.Parameters.AddWithValue("@UserName", username);
+                        //
+
+                        object value = command.ExecuteScalar();
+                        if (value != null)
+                        {
+                            result = value.ToString();
+                        }
+
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Program.Logger.Error(e.Message);
+
+            }
+            return result;
+        }
+
 
 
 

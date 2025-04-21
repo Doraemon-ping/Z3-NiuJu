@@ -36,7 +36,7 @@ namespace Z3_Niuju
             DateTime dateTime = DateTime.Now;
             string riqi = dateTime.Year.ToString()+"_"+dateTime.Month.ToString(); 
             // 定义日志文件路径和日志格式
-            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "log"+"\\"+riqi+"\\"+riqi+dateTime.Day.ToString()+"_logfile.txt" };
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "log"+"\\"+riqi+"\\"+riqi+"_"+dateTime.Day.ToString()+"_logfile.txt" };
             logPath = logfile.FileName.ToString();
             Console.WriteLine(logPath);
             // 将日志级别设置为 Debug 及以上的所有日志信息写入文件
@@ -47,14 +47,30 @@ namespace Z3_Niuju
             Logger.Info("Application started.");
             try
             {
-              // 
-              // 
+                // 
+                // 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Form1());
+
+                Form5 form5 = new Form5();
+
+                form5.ShowDialog();
+
+                if (form5.DialogResult == DialogResult.OK)
+                {
+                    form5.Dispose();
+                    Application.Run(new Form1());
+
+                }
+                else if (form5.DialogResult == DialogResult.Cancel)
+                {
+                    form5.Dispose();
+                    return;
+                }
             }
-            catch (Exception e) {
-                Logger.Error("数据查询异常:"+e.Message);
+            catch (Exception e)
+            {
+                Logger.Error("数据查询异常:" + e.Message);
             }
         }
     }

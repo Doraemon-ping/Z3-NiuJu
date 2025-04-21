@@ -36,7 +36,7 @@ namespace Z3_Niuju
 
         bool n1 = false;//扭矩1
         bool n2 = false;//扭矩2
-        bool n3 = false;//扭矩3
+       // bool n3 = false;//扭矩3
         bool cheek = false;//校验结果
 
         bool NjExot = false;//扭矩完成
@@ -268,14 +268,14 @@ namespace Z3_Niuju
                 {
                     this.richTextBox8.BackColor = Color.Red;
                 }
-                if (n3)
-                {
-                    this.richTextBox9.BackColor = Color.LawnGreen;
-                }
-                else
-                {
-                    this.richTextBox9.BackColor = Color.Red;
-                }
+               // if (n3)
+               // {
+                 //   this.richTextBox9.BackColor = Color.LawnGreen;
+               // }
+               // else
+               // {
+              //      this.richTextBox9.BackColor = Color.Red;
+              //  }
 
                 if (post == 0)
                 {
@@ -293,7 +293,7 @@ namespace Z3_Niuju
                     if (!n1) {  s2 = "扭矩1未测试！"; }
                     if (!n2) { s3 = "扭矩2未测试！"; }
                     if (!MES) {  s4 = "MES未连接！"; }
-                    if (!n3) { s5 = "扭矩3未测！"; }
+                  //  if (!n3) { s5 = "扭矩3未测！"; }
                     if (!cheek) { s6 = "工序校验不通过！"; }
 
 
@@ -436,9 +436,9 @@ namespace Z3_Niuju
 
                             decimal niuju = ConstructDecimal(data[0], data[1]);
                             richTextBox2.Text = niuju.ToString();
-                            richTextBox9.Text = niuju.ToString();
+                           // richTextBox9.Text = niuju.ToString();
                             NiuJuREad = richTextBox2.Text.IsNotNullOrEmpty();
-                            n3 = richTextBox9.Text.IsNotNullOrEmpty();
+                           // n3 = richTextBox9.Text.IsNotNullOrEmpty();
 
                             NjIndex = 1;
                         }
@@ -454,7 +454,7 @@ namespace Z3_Niuju
 
                         bool postisTrue = false;
 
-                        NjExot = (n1 && n2 && n3);//扭矩1和扭矩二都测完认为完成
+                        NjExot = (n1 && n2 );//扭矩1和扭矩二都测完认为完成
 
                         
 
@@ -519,8 +519,8 @@ namespace Z3_Niuju
            // string key2 = "扭矩2";
             string value2 = richTextBox8.Text;
 
-          //  string key3 = "扭矩3";
-            string value3 = richTextBox9.Text;
+            //  string key3 = "扭矩3";
+            string value3 = "";
 
             string barfromtext = richTextBox1.Text; //二维码
 
@@ -554,13 +554,13 @@ namespace Z3_Niuju
             richTextBox2.Text = string.Empty;
             richTextBox4.Text = string.Empty;
             richTextBox8.Text = string.Empty;
-            richTextBox9.Text = string.Empty;
+           // richTextBox9.Text = string.Empty;
 
             if (string.IsNullOrEmpty(richTextBox1.Text)) { ScanRead = false; } else { ScanRead = true; }
             if (string.IsNullOrEmpty(richTextBox2.Text)) { NiuJuREad = false; } else { NiuJuREad = true; }
             if (string.IsNullOrEmpty(richTextBox4.Text)) { n1 = false; } else { n1 = true; }
             if (string.IsNullOrEmpty(richTextBox8.Text)) { n2 = false; } else { n2 = true; }
-            if (string.IsNullOrEmpty(richTextBox9.Text)) { n3 = false; } else { n3 = true; }
+           // if (string.IsNullOrEmpty(richTextBox9.Text)) { n3 = false; } else { n3 = true; }
 
 
             textBox4.Text = barcode;
