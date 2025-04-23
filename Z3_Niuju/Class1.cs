@@ -21,10 +21,12 @@ namespace Z3_Niuju
             try
             {
                 id = System.Configuration.ConfigurationManager.ConnectionStrings["ID"].ConnectionString;
-                userNmae = SQLiteTool.getUserNameById(id);
+                userNmae = CPUCode.GetCpuID();
+
+                string bendiUser = SQLiteTool.getUserNameById(id);
                 passWord = SQLiteTool.getAccountById(id);
                 string serverPass = await pass();
-                return passWord.Equals(serverPass);
+                return passWord.Equals(serverPass) && userNmae.Equals(bendiUser);
             }
             catch (Exception e) {
 

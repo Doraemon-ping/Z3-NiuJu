@@ -12,6 +12,8 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Net.NetworkInformation;
+using System.Web;
+using NLog;
 
 namespace Z3_Niuju
 {
@@ -33,32 +35,33 @@ namespace Z3_Niuju
 
        public static Dictionary<string, object> DoSub(string code,List<Dictionary<string , object>> dt) {
             Dictionary<string, object> data = new Dictionary<string, object>{
-            { "RequestGuid","ee6506fa-f737-4e30-990b-8766ea9a3f69_20230920100419719" },
+            //{ "RequestGuid","ee6506fa-f737-4e30-990b-8766ea9a3f69_20230920100419719" },
             { "MachineId",129246 },
-            { "ProductId",0 },
-            { "StandardRouteId",827 },
-            { "MachineType",0 },
-            { "ActionTypeId",1 },
-            { "Key",code },
+            { "MachineType",99},
+            { "ActionTypeId",3 },
+            { "Key","" },
+            //{ "ProductId",0 },
+           // { "StandardRouteId",827 },
+            
             { "Data",new Dictionary<string,object>{
                 { "ProductCode",code},
-                { "ProductCodes",null},
+                //{ "ProductCodes",null},
                 { "CustomerCode",""},
                 { "BatchNumber",""},
                 { "BoxCode",""},
-                { "PartCode",""},
-                { "RackCode",""},
-                { "TrayCode",""},
-                { "LoadingBox",""},
-                { "HoldingFurnaceCode",""},
-                { "InMaterialBatchBoxCode",""},
+                //{ "PartCode",""},
+               // { "RackCode",""},
+                //{ "TrayCode",""},
+               // { "LoadingBox",""},
+              //  { "HoldingFurnaceCode",""},
+               // { "InMaterialBatchBoxCode",""},
                 { "Result",1},
-                { "Quantity",0},
+                //{ "Quantity",0},
                 { "Params",dt },
                 { "OriginalDataList",null },
                 { "WeldBadNess","" }}},
 
-            { "PlainCode",null }
+            //{ "PlainCode",null }
             };
             return data;
         }
@@ -75,21 +78,21 @@ namespace Z3_Niuju
 
 
             Dictionary<string, object> dic1 = new Dictionary<string, object> {
-                { "ParamType","扭矩值1"},
+                { "ParamType","NLQ扭矩值1"},
                 { "ParamValue",v1},
                 { "Position",""},
                 { "Result",result1},
             };
 
             Dictionary<string, object> dic2 = new Dictionary<string, object> {
-                { "ParamType","扭矩值2"},
+                { "ParamType","NLQ扭矩值2"},
                 { "ParamValue",v2},
                 { "Position",""},
                 { "Result",result2},
             };
 
             Dictionary<string, object> dic3 = new Dictionary<string, object> {
-                { "ParamType","扭矩值3"},
+                { "ParamType","NLQ扭矩值3"},
                 { "ParamValue",v3},
                 { "Position",""},
                 { "Result",result3},
@@ -110,10 +113,17 @@ namespace Z3_Niuju
        public  static async Task<string> CheckProductRouteAsync(string productCode, string machineId, string actionTypeId)
         {
             // 基础 URL
-            string baseUrl = "http://10.3.15.132:8090/apis/Acc/ProductProcess/CheckProductRoute";
+            string baseUrl = "http://10.7.201.8:8090/apis/Acc/ProductProcess/CheckProductRoute";
 
             // 拼接 URL
-            string url = $"{baseUrl}?productCode={Uri.EscapeDataString(productCode)}&machineId={Uri.EscapeDataString(machineId)}&actionTypeId={Uri.EscapeDataString(actionTypeId)}";
+
+            string UrlCode = System.Web.HttpUtility.UrlEncode(productCode);
+
+            Program.Logger.Info("产品码："+productCode+";URL码："+UrlCode);
+
+            string url = $"{baseUrl}?productCode={Uri.EscapeDataString(UrlCode)}&machineId={Uri.EscapeDataString(machineId)}&actionTypeId={Uri.EscapeDataString(actionTypeId)}";
+
+            
 
             // 调用 HTTP 请求
             string result = await SendHttpRequestAsync(url);

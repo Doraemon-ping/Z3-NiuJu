@@ -532,6 +532,11 @@ namespace Z3_Niuju
             sQLiteTool.insert(barcode,value1,value2,value3,DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
 
+            string UrlCode = System.Web.HttpUtility.UrlEncode(barcode);
+
+
+
+
             // List<KeyValuePair> li = new List<KeyValuePair>();
             // li.Add(MyhHttp.create_DataTable(key1, value1));
             // li.Add(MyhHttp.create_DataTable(key2, value2));
@@ -542,7 +547,7 @@ namespace Z3_Niuju
             string json = JsonConvert.SerializeObject(data);
             richTextBox1.Text = json;
 
-
+            Program.Logger.Info("产品码："+barcode +"; URL码："+UrlCode); 
             Program.Logger.Info("准备报工：" + json);
         
             string ip = Z2_Ip;
@@ -574,20 +579,24 @@ namespace Z3_Niuju
             {
                 var response = await MyhHttp.myPost(url, json);
                 richTextBox6.Text = response;
-                ServerResponse serverresponse = JsonConvert.DeserializeObject<ServerResponse>(response);
-                int code = serverresponse.Code;
+                Z2Response serverresponse = JsonConvert.DeserializeObject<Z2Response>(response);
+                int code = serverresponse.ret;
                 if (code == 201)
                 {
                     Program.Logger.Error("失败！错误信息：" + response);
                     post = 3;
                     // chushihua();
                 }
-                else if (code == 0)
+                else if (code == 1)
                 {
 
                     post = 2;
                     //chushihua();
                     Program.Logger.Info("保存成功！" + response);
+                }
+                else {
+                    post = 3;
+                    Program.Logger.Info("保存失败！" + response);
                 }
                 //chushihua();
                 count++;
@@ -744,12 +753,13 @@ namespace Z3_Niuju
                         Z2res serverresponse = JsonConvert.DeserializeObject<Z2res>(response);
                         Program.Logger.Info("开始校验" + "二维码:" + richTextBox1.Text + "状态：" +serverresponse.Ret);
                         if (serverresponse.Ret == 1) { cheek = true; }
+                       
                     }
                     catch (Exception ex)
                     {
                         Program.Logger.Info(ex.Message);
                     }
-                  
+                    post = 0;
 
                 }
 

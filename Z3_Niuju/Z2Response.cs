@@ -8,10 +8,10 @@ namespace Z3_Niuju
 {
     internal class Z2Response
     {
-        public string msg { get; set; }
+        public int ret { get; set; }
 
-        public int code { set; get; }
+        public int msg { set; get; }
 
-        public string password { get; set; }
+        public string data { get; set; }
     }
 }
