@@ -425,23 +425,23 @@ namespace Z3_Niuju
                             richTextBox8.Text = niuju.ToString();
                             NiuJuREad = richTextBox2.Text.IsNotNullOrEmpty();
                             n2 = richTextBox8.Text.IsNotNullOrEmpty();
-                            NjIndex++;
-
-                            //NjIndex = 1;
-
-                        }
-                        else if (ScanRead && NjIndex == 3)
-                        {
-                            data = Parse(buffer);
-
-                            decimal niuju = ConstructDecimal(data[0], data[1]);
-                            richTextBox2.Text = niuju.ToString();
-                           // richTextBox9.Text = niuju.ToString();
-                            NiuJuREad = richTextBox2.Text.IsNotNullOrEmpty();
-                           // n3 = richTextBox9.Text.IsNotNullOrEmpty();
+                            //NjIndex++;
 
                             NjIndex = 1;
+
                         }
+                        //else if (ScanRead && NjIndex == 3)
+                       // {
+                         //   data = Parse(buffer);
+
+                         //   decimal niuju = ConstructDecimal(data[0], data[1]);
+                         //   richTextBox2.Text = niuju.ToString();
+                           // richTextBox9.Text = niuju.ToString();
+                         //   NiuJuREad = richTextBox2.Text.IsNotNullOrEmpty();
+                           // n3 = richTextBox9.Text.IsNotNullOrEmpty();
+
+                          //  NjIndex = 1;
+                       // }
                         else if (!ScanRead)
                         {
                             MessageBox.Show("请先扫二维码！");
