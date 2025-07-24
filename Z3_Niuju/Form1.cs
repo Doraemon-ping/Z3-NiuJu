@@ -731,25 +731,36 @@ namespace Z3_Niuju
                 if (isinput && inputExit )
                 {
                     cheek = false;
+                    post = 0;
 
-                    richTextBox1.Text = textBox6.Text.Replace("\r\n", "").Replace("\n", "").Replace("\r", ""); //删除换行
-
-                    richTextBox1.Text = richTextBox1.Text.ToUpper(); // 示例：将文本转换为大写
-                    richTextBox1.SelectionStart = richTextBox1.Text.Length; // 保持光标位置
-                    ScanRead = richTextBox1.Text.IsNotNullOrEmpty();
+                    string code = textBox6.Text.Replace("\r\n", "").Replace("\n", "").Replace("\r", "").ToUpper(); //删除换行
                     textBox6.Text = string.Empty;
                     try
                     {
-                        var response = await Z2Http.CheckProductRouteAsync(richTextBox1.Text, "129762", "1");
+                        var response = await Z2Http.CheckProductRouteAsync(code, "129762", "1");
                         Z2res serverresponse = JsonConvert.DeserializeObject<Z2res>(response);
-                        Program.Logger.Info("开始校验" + "二维码:" + richTextBox1.Text + "状态：" +serverresponse.Ret);
+                        Program.Logger.Info("开始校验" + "二维码:" + code + "状态：" + serverresponse.Ret);
                         if (serverresponse.Ret == 1) { cheek = true; }
                     }
                     catch (Exception ex)
                     {
                         Program.Logger.Info(ex.Message);
                     }
-                  
+
+                    if (cheek)
+                    {
+                        richTextBox1.Text = code.ToUpper(); // 示例：将文本转换为大写
+                        richTextBox1.SelectionStart = richTextBox1.Text.Length; // 保持光标位置
+                        ScanRead = richTextBox1.Text.IsNotNullOrEmpty()&&cheek;
+                    }
+                    else {
+                        richTextBox1.Text = "ERROR , 二维码:"+ code +"错误！";
+                        ScanRead = false;
+                    }
+
+
+
+
 
                 }
 

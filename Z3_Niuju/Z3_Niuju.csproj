@@ -8,7 +8,7 @@
     <ProjectGuid>{90BAADE0-A063-4AF4-BA5A-FD5BDFD8074F}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Z3_Niuju</RootNamespace>
-    <AssemblyName>Z3_Niuju</AssemblyName>
+    <AssemblyName>扭矩枪采集</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
